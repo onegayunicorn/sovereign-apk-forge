@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>AI Forge Mobile</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <!-- FORGE TAB -->
+  <div class="tab-page active" id="tab-forge">
+    <div class="header"><span class="logo">◆</span> AI Forge <span class="tag" id="neural-tag">neural: loading…</span></div>
+    <div id="chat-output" class="chat-output"></div>
+    <div class="chat-input"><input id="chat-cmd" type="text" placeholder="Ask anything… (build, errors, sign, pwa, termux)" autocomplete="off"><button id="chat-send">▶</button></div>
+  </div>
+  <!-- PROJECTS TAB -->
+  <div class="tab-page" id="tab-projects">
+    <div class="header"><span class="logo">◆</span> Projects</div>
+    <div class="content" id="projects-list"></div>
+  </div>
+  <!-- TERMINAL TAB -->
+  <div class="tab-page" id="tab-terminal">
+    <div class="header"><span class="logo">◆</span> Terminal <span class="tag">forge shell</span></div>
+    <div id="term-output" class="term-output"></div>
+    <div class="term-input"><span class="prompt">forge:~$</span><input id="term-cmd" type="text" placeholder="type 'help'" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+  </div>
+  <!-- MESH TAB -->
+  <div class="tab-page" id="tab-mesh">
+    <div class="header"><span class="logo">◆</span> Mesh <span class="tag" id="mesh-state">offline</span></div>
+    <div class="content" id="mesh-cards"></div>
+    <div class="content">
+      <div class="card"><div class="card-title">Pi 5 Connection</div>
+      <div class="row"><input id="pi-ip" type="text" placeholder="192.168.1.50 (Pi 5 IP)" value="192.168.1.50"><button id="pi-connect">Connect</button></div>
+      <div class="dim" id="pi-status">Local mode — mesh status simulated. Connect to your Pi 5 orchestrator for remote builds.</div>
+    </div>
+  </div>
+  <!-- SETTINGS TAB -->
+  <div class="tab-page" id="tab-settings">
+    <div class="header"><span class="logo">◆</span> Settings</div>
+    <div class="content" id="settings-list"></div>
+  </div>
+</div>
+<!-- BOTTOM TAB BAR -->
+<nav id="tabbar">
+  <button class="tab-btn active" data-tab="forge"><span class="ti">✦</span>Forge</button>
+  <button class="tab-btn" data-tab="projects"><span class="ti">▤</span>Projects</button>
+  <button class="tab-btn" data-tab="terminal"><span class="ti">▮</span>Terminal</button>
+  <button class="tab-btn" data-tab="mesh"><span class="ti">◈</span>Mesh</button>
+  <button class="tab-btn" data-tab="settings"><span class="ti">⚙</span>Settings</button>
+</nav>
+<script src="ai/ort.min.js"></script>
+<script src="ai/tokenizer.js"></script>
+<script src="ai/neural-ai.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

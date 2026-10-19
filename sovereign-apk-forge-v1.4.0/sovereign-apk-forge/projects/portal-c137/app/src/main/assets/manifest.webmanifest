@@ -1,0 +1,25 @@
+{
+  "name": "Rick C-137 Portal Interface",
+  "short_name": "Portal C-137",
+  "description": "Sovereign Interactive Rick C-137 Twin Portal Interface",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020b05",
+  "theme_color": "#00ff88",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+projects/*/build/
+projects/*/dist/
+projects/*/obj/
+*.keystore
+*.jks
+*.apk
+*.ap_
+*.dex
+*.class
+.DS_Store

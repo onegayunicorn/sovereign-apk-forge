@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sovereign_bg">#020B05</color>
+    <color name="sovereign_accent">#00FF88</color>
+    <color name="sovereign_white">#F7FAFF</color>
+</resources>

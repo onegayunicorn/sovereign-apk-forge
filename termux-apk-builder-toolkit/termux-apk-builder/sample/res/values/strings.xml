@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Terminal Built</string>
+    <string name="hello">Hello from Termux!</string>
+    <string name="subtitle">This APK was built entirely on-device.</string>
+</resources>

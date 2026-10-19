@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>AI Forge — Offline Terminal APK Builder</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="terminal">
+  <div id="output"></div>
+  <div id="input-line">
+    <span id="prompt">ai-forge:~$</span>
+    <input id="cmd" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="type 'help' or ask anything…">
+  </div>
+</div>
+<div id="statusbar">
+  <span id="st-left">OFFLINE · 100% LOCAL</span>
+  <span id="st-right">AI Forge v1.3 · Neural (MiniLM) · Sovereign APK Forge</span>
+</div>
+<script src="ai/ort.min.js"></script>
+<script src="ai/tokenizer.js"></script>
+<script src="ai/neural-ai.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

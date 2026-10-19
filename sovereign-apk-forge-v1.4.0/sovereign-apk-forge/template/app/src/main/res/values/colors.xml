@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sovereign_blue">#0A0F2A</color>
+    <color name="sovereign_cyan">#00E7FF</color>
+    <color name="sovereign_white">#F7FAFF</color>
+    <color name="sovereign_amber">#FFB000</color>
+</resources>

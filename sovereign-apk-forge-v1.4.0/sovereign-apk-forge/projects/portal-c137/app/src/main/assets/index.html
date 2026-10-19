@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- PWA: injected by Kyrexis converter -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#00ff88">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Portal C-137">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="icon" href="/icon-192.png" type="image/png">
+  <!-- /PWA -->
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rick C-137 Portal Interface // Twin Portal</title>
+  <meta name="description" content="Sovereign Interactive Rick C-137 Twin Portal Interface">
+  <style>
+    :root {
+      --portal-green: #00ff88;
+      --portal-yellow: #d4ff00;
+      --portal-dim: rgba(0, 255, 136, 0.15);
+      --portal-void: #020b05;
+      --hud-cyan: #00e5ff;
+      --hud-alert: #ff0055;
+      --hud-border: rgba(0, 255, 136, 0.35);
+      --font-mono: "SF Mono", "Fira Code", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--portal-void);
+      color: var(--portal-green);
+      font-family: var(--font-mono);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 9:16 Cyber HUD Viewport */
+    #hud-container {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      height: 100%;
+      max-height: 880px;
+      overflow: hidden;
+      background: radial-gradient(circle at center, rgba(0, 40, 15, 0.4) 0%, rgba(1, 10, 4, 0.95) 100%);
+      border: 1px solid var(--hud-border);
+      box-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* WebGL Canvas Background Layer */
+    #vortex-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* CRT Scanline & Chromatic Overlay */
+    .scanlines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+      background-size: 100% 4px;
+      opacity: 0.65;
+    }
+
+    /* UI Content Overlay */
+    .ui-layer {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 16px;
+      justify-content: space-between;
+    }
+
+    /* Header & Telemetry */
+    .telemetry-header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-bottom: 1px solid var(--hud-border);
+      padding-bottom: 10px;
+    }
+
+    .top-status-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--hud-cyan);
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title-row h1 {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-shadow: 0 0 8px var(--portal-green);
+    }
+
+    .badge-active {
+      background: var(--portal-dim);
+      border: 1px solid var(--portal-green);
+      color: var(--portal-green);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 2px;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--portal-green); }
+      50% { opacity: 0.5; box-shadow: none; }
+    }
+
+    .dimension-coords {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--portal-yellow);
+    }
+
+    /* Central Orchestrator Card */
+    .orchestrator-card {
+      background: rgba(2, 18, 8, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--portal-green);
+      border-radius: 6px;
+      padding: 16px;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.15);
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--hud-cyan);
+      border-bottom: 1px dashed var(--hud-border);
+      padding-bottom: 6px;
+    }
+
+    .terminal-output {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #ffffff;
+      text-shadow: 0 0 4px rgba(255, 255, 255, 0.4);
+      min-height: 50px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .hud-btn {
+      background: rgba(0, 255, 136, 0.1);
+      border: 1px solid var(--portal-green);
+      color: var(--portal-green);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      font-weight: bold;
+      border-radius: 3px;
+    }
+
+    .hud-btn:hover {
+      background: var(--portal-green);
+      color: var(--portal-void);
+      box-shadow: 0 0 10px var(--portal-green);
+    }
+
+    .hud-btn-danger {
+      border-color: var(--hud-alert);
+      color: var(--hud-alert);
+      background: rgba(255, 0, 85, 0.1);
+    }
+
+    .hud-btn-danger:hover {
+      background: var(--hud-alert);
+      color: #fff;
+      box-shadow: 0 0 10px var(--hud-alert);
+    }
+
+    /* Waveform Canvas */
+    #audio-meter {
+      width: 100%;
+      height: 24px;
+      margin-top: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--hud-border);
+    }
+
+    /* Bottom Multimodal Command Capsule */
+    .command-hub {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-capsule {
+      display: flex;
+      background: rgba(2, 20, 9, 0.85);
+      border: 1px solid var(--portal-green);
+      border-radius: 24px;
+      padding: 4px 6px;
+      align-items: center;
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+    }
+
+    .input-capsule input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      padding: 8px 14px;
+    }
+
+    .input-capsule input::placeholder {
+      color: rgba(0, 255, 136, 0.4);
+    }
+
+    .action-icon-btn {
+      background: var(--portal-dim);
+      border: 1px solid var(--portal-green);
+      color: var(--portal-green);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .action-icon-btn:hover {
+      background: var(--portal-green);
+      color: var(--portal-void);
+    }
+  </style>
+</head>
+<body>
+
+<div id="hud-container">
+  <!-- WebGL Vortex Background Canvas -->
+  <canvas id="vortex-canvas"></canvas>
+  <div class="scanlines"></div>
+
+  <!-- Interactive HUD Overlay -->
+  <div class="ui-layer">
+    <!-- Top Telemetry -->
+    <div class="telemetry-header">
+      <div class="top-status-bar">
+        <span id="carrier-stat">MESH: SYNCED</span>
+        <span id="time-clock">00:00:00</span>
+        <span id="battery-stat">PWR: 100%</span>
+      </div>
+      <div class="title-row">
+        <h1>Rick C-137 Portal</h1>
+        <span class="badge-active" id="status-badge">ORCHESTRATOR ONLINE</span>
+      </div>
+      <div class="dimension-coords">
+        <span>DIM: C-137</span>
+        <span>RESONANCE: <b id="resonance-val">1207</b> Hz</span>
+        <span>STABILITY: 99.8%</span>
+      </div>
+    </div>
+
+    <!-- Central Orchestrator Holographic Card -->
+    <div class="orchestrator-card">
+      <div class="card-header">
+        <span>TWIN PORTAL // TELEMETRY</span>
+        <span id="portal-state-tag">ACTIVE</span>
+      </div>
+      <div class="terminal-output" id="terminal-text">
+        Portal test complete. Structure stable. You're clear to proceed.
+      </div>
+      <canvas id="audio-meter"></canvas>
+      <div class="card-actions">
+        <button class="hud-btn" id="btn-fire">FIRE PORTAL</button>
+        <button class="hud-btn" id="btn-pin">PIN</button>
+        <button class="hud-btn" id="btn-gist">EXPORT GIST</button>
+        <button class="hud-btn hud-btn-danger" id="btn-reset">COLLAPSE</button>
+      </div>
+    </div>
+
+    <!-- Multimodal Command Input -->
+    <div class="command-hub">
+      <div class="input-capsule">
+        <input type="text" id="prompt-input" placeholder="Type or speak to your twin..." />
+        <button class="action-icon-btn" id="btn-mic" title="Voice Input">🎙️</button>
+        <button class="action-icon-btn" id="btn-send" style="margin-left: 4px;" title="Send">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- 1. Real-Time Telemetry & Clock ---
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('time-clock').textContent = now.toTimeString().split(' ')[0];
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  if (navigator.getBattery) {
+    navigator.getBattery().then(battery => {
+      const setBattery = () => {
+        document.getElementById('battery-stat').textContent = `PWR: ${Math.round(battery.level * 100)}%`;
+      };
+      setBattery();
+      battery.addEventListener('levelchange', setBattery);
+    });
+  }
+
+  // --- 2. WebAudio Frequency Visualizer & Sound FX ---
+  let audioCtx, analyser, audioDataArray;
+  let resonanceFreq = 1207;
+
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      audioDataArray = new Uint8Array(analyser.frequencyBinCount);
+    }
+  }
+
+  function playPortalSound(freq = 440, type = 'sawtooth') {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq * 2.5, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+    osc.connect(gain);
+    gain.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.35);
+  }
+
+  // Draw Audio Waveform
+  const meterCanvas = document.getElementById('audio-meter');
+  const meterCtx = meterCanvas.getContext('2d');
+  function drawMeter() {
+    requestAnimationFrame(drawMeter);
+    meterCanvas.width = meterCanvas.offsetWidth;
+    meterCanvas.height = meterCanvas.offsetHeight;
+    meterCtx.fillStyle = 'rgba(2, 20, 9, 0.8)';
+    meterCtx.fillRect(0, 0, meterCanvas.width, meterCanvas.height);
+
+    if (analyser && audioDataArray) {
+      analyser.getByteFrequencyData(audioDataArray);
+      const barWidth = (meterCanvas.width / audioDataArray.length);
+      for (let i = 0; i < audioDataArray.length; i++) {
+        const h = (audioDataArray[i] / 255) * meterCanvas.height;
+        meterCtx.fillStyle = i % 2 === 0 ? '#00ff88' : '#d4ff00';
+        meterCtx.fillRect(i * barWidth, meterCanvas.height - h, barWidth - 1, h);
+      }
+    }
+  }
+  drawMeter();
+
+  // --- 3. WebGL Dimensional Portal Vortex Shader ---
+  const canvas = document.getElementById('vortex-canvas');
+  const gl = canvas.getContext('webgl');
+
+  function resizeCanvas() {
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
+    if (gl) gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  const vsSource = `
+    attribute vec2 a_position;
+    void main() {
+      gl_Position = vec4(a_position, 0.0, 1.0);
+    }
+  `;
+
+  const fsSource = `
+    precision highp float;
+    uniform vec2 u_resolution;
+    uniform float u_time;
+    uniform float u_resonance;
+
+    float hash(vec2 p) {
+      p = fract(p * vec2(123.34, 456.21));
+      p += dot(p, p + 45.32);
+      return fract(p.x * p.y);
+    }
+
+    float noise(vec2 p) {
+      vec2 i = floor(p);
+      vec2 f = fract(p);
+      f = f * f * (3.0 - 2.0 * f);
+      return mix(
+        mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+        mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+        f.y
+      );
+    }
+
+    void main() {
+      vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
+      float dist = length(uv);
+      float angle = atan(uv.y, uv.x);
+
+      // Swirling Accretion Disk
+      float warp = 3.2 * sin(dist * 7.0 - u_time * 2.8 + u_resonance * 0.005);
+      float spiral = angle + warp / (dist + 0.18);
+      vec2 p = vec2(dist * 4.0 - u_time * 0.8, spiral * 2.0 / 3.14159);
+      float n = noise(p) * 0.7 + noise(p * 2.5 + u_time * 0.4) * 0.3;
+
+      vec3 col_core   = vec3(0.0, 1.0, 0.53);
+      vec3 col_accent = vec3(0.83, 1.0, 0.0);
+      vec3 col_void   = vec3(0.01, 0.04, 0.02);
+
+      float rim = smoothstep(0.72, 0.22, dist);
+      float glow = exp(-dist * 4.2) * 1.5;
+
+      vec3 color = mix(col_void, col_core, n * rim) + col_accent * glow;
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `;
+
+  function createShader(gl, type, source) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, source);
+    gl.compileShader(s);
+    return s;
+  }
+
+  const program = gl.createProgram();
+  gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, vsSource));
+  gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, fsSource));
+  gl.linkProgram(program);
+  gl.useProgram(program);
+
+  const posBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    -1, -1,  1, -1, -1,  1,
+    -1,  1,  1, -1,  1,  1,
+  ]), gl.STATIC_DRAW);
+
+  const posAttr = gl.getAttribLocation(program, "a_position");
+  gl.enableVertexAttribArray(posAttr);
+  gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+  const uRes = gl.getUniformLocation(program, "u_resolution");
+  const uTime = gl.getUniformLocation(program, "u_time");
+  const uResonance = gl.getUniformLocation(program, "u_resonance");
+
+  let startTime = performance.now();
+  function render(now) {
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTime, (now - startTime) * 0.001);
+    gl.uniform1f(uResonance, resonanceFreq);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+  // --- 4. Interactive HUD Event Handlers ---
+  const terminalText = document.getElementById('terminal-text');
+  const resonanceDisplay = document.getElementById('resonance-val');
+
+  function typeText(msg) {
+    terminalText.textContent = "";
+    let i = 0;
+    const interval = setInterval(() => {
+      terminalText.textContent += msg.charAt(i);
+      i++;
+      if (i >= msg.length) clearInterval(interval);
+    }, 25);
+  }
+
+  document.getElementById('btn-fire').addEventListener('click', () => {
+    playPortalSound(1207, 'sawtooth');
+    resonanceFreq = Math.floor(1000 + Math.random() * 800);
+    resonanceDisplay.textContent = resonanceFreq;
+    typeText(`Firing fluid injector. Microverse battery discharging at ${resonanceFreq} Hz. Dimensional rift opened.`);
+  });
+
+  document.getElementById('btn-pin').addEventListener('click', () => {
+    playPortalSound(880, 'sine');
+    typeText(`Coordinate C-137 [Resonance: ${resonanceFreq} Hz] pinned to local warp memory.`);
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    playPortalSound(180, 'triangle');
+    typeText("Portal event horizon collapsed. Standing by for recalibration.");
+  });
+
+  document.getElementById('btn-gist').addEventListener('click', () => {
+    const statePayload = {
+      dimension: "C-137",
+      resonance: resonanceFreq,
+      stability: 0.998,
+      timestamp: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(statePayload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `portal-c137-${Date.now()}.json`;
+    a.click();
+    typeText("Sovereign snapshot exported to local JSON buffer.");
+  });
+
+  // --- 5. Speech Input (Web Speech API) ---
+  const micBtn = document.getElementById('btn-mic');
+  const promptInput = document.getElementById('prompt-input');
+
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+
+    micBtn.addEventListener('click', () => {
+      playPortalSound(600, 'sine');
+      typeText("Listening to inter-dimensional twin audio feed...");
+      recognition.start();
+    });
+
+    recognition.onresult = (event) => {
+      const speechResult = event.results[0][0].transcript;
+      promptInput.value = speechResult;
+      typeText(`Twin input received: "${speechResult}"`);
+      playPortalSound(900, 'sine');
+    };
+  } else {
+    micBtn.addEventListener('click', () => {
+      typeText("Web Speech API not supported in this client. Type command manually.");
+    });
+  }
+
+  document.getElementById('btn-send').addEventListener('click', () => {
+    const val = promptInput.value.trim();
+    if (!val) return;
+    playPortalSound(750, 'sawtooth');
+    typeText(`Dispatched to Orchestrator: "${val}"`);
+    promptInput.value = "";
+  });
+</script>
+
+<!-- PWA install bar -->
+<div id="pwa-install-bar" style="display:none;position:fixed;top:12px;right:12px;z-index:9999;gap:.75rem;align-items:center;padding:.6rem 1rem;border:1px solid #00ff88;border-radius:10px;background:#020b05;color:#FFD700;font-family:system-ui,sans-serif">
+  <span style="font-weight:700">Install Portal C-137</span>
+  <button onclick="installPWA()" style="background:#FFD700;color:#000;font-weight:700;border:0;border-radius:6px;padding:.45rem .9rem;cursor:pointer">INSTALL</button>
+  <button onclick="document.getElementById('pwa-install-bar').style.display='none'" style="background:none;border:0;color:inherit;cursor:pointer">✕</button>
+</div>
+
+<!-- PWA runtime: injected by Kyrexis converter -->
+<script>
+(function () {
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferred = e;
+    var bar = document.getElementById('pwa-install-bar');
+    if (bar) bar.style.display = 'flex';
+  });
+  window.installPWA = function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function () {
+      deferred = null;
+      var bar = document.getElementById('pwa-install-bar');
+      if (bar) bar.style.display = 'none';
+    });
+  };
+  window.addEventListener('appinstalled', function () {
+    var bar = document.getElementById('pwa-install-bar');
+    if (bar) bar.style.display = 'none';
+  });
+  // FIX: allow service worker registration on localhost / 127.0.0.1 as well as HTTPS
+  const isSecureOrLocal = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if ('serviceWorker' in navigator && isSecureOrLocal) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    });
+  }
+})();
+</script>
+<!-- /PWA runtime -->
+
+</body>
+</html>

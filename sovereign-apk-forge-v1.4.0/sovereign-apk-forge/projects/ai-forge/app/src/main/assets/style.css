@@ -1,0 +1,22 @@
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { height:100%; background:#020B05; color:#C8F7DC; font-family:"Courier New",Consolas,monospace; font-size:14px; overflow:hidden; }
+#terminal { position:absolute; top:0; left:0; right:0; bottom:28px; padding:12px; overflow-y:auto; }
+#output { white-space:pre-wrap; word-break:break-word; line-height:1.5; }
+#output .line { margin-bottom:2px; }
+#output .cmd-echo { color:#00FF88; }
+#output .ok { color:#00FF88; }
+#output .err { color:#FF6B6B; }
+#output .info { color:#7DD3FC; }
+#output .warn { color:#FBBF24; }
+#output .dim { color:#5B7A6B; }
+#output .ai { color:#E2E8F0; border-left:2px solid #00FF88; padding-left:8px; margin:4px 0; display:block; }
+#output b { color:#00FF88; }
+#output a { color:#7DD3FC; }
+#input-line { position:absolute; bottom:28px; left:0; right:0; padding:8px 12px; display:flex; align-items:center; border-top:1px solid #0A2A18; background:#020B05; }
+#prompt { color:#00FF88; margin-right:8px; white-space:nowrap; }
+#cmd { flex:1; background:transparent; border:none; outline:none; color:#E2E8F0; font-family:inherit; font-size:14px; caret-color:#00FF88; }
+#statusbar { position:absolute; bottom:0; left:0; right:0; height:28px; background:#0A2A18; color:#00FF88; font-size:11px; display:flex; justify-content:space-between; align-items:center; padding:0 12px; letter-spacing:1px; }
+#terminal::-webkit-scrollbar { width:6px; }
+#terminal::-webkit-scrollbar-thumb { background:#0A2A18; }
+.blink { animation:blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity:0; } }

@@ -1,0 +1,6 @@
+﻿File,Purpose
+index.html,Application page and install UI
+manifest.webmanifest,PWA manifest file
+sw.js,Service worker for offline shell caching
+icon-192.png,192×192 PNG application icon
+icon-512.png,512×512 PNG application icon (standard & maskable)
