@@ -1,4 +1,4 @@
-﻿File,Purpose
+File,Purpose
 index.html,Application page and install UI
 manifest.webmanifest,PWA manifest file
 sw.js,Service worker for offline shell caching
